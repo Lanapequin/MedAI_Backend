@@ -152,3 +152,7 @@ Balanced: 20,000 records per MTS level (1–5). 22 columns including vital signs
 | Accuracy | 53.1% | — |
 
 Performance is below paper targets due to class overlap in the 15-feature space. The human-in-the-loop design compensates: clinicians validate all recommendations through the SHAP explanation interface before acting.
+
+
+## Demo video:
+https://youtu.be/3YQESG7gYVY
