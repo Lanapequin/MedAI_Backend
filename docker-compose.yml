@@ -1,0 +1,51 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: medai
+      POSTGRES_USER: medai
+      POSTGRES_PASSWORD: medaipass
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U medai"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./MedAI_Backend
+    environment:
+      DATABASE_URL: postgresql://medai:medaipass@db/medai
+      CORS_ORIGINS: http://localhost:3000,http://frontend:3000
+      BACKEND_HOST: 0.0.0.0
+      BACKEND_PORT: "8000"
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./MedAI_Backend/models:/app/models
+
+  frontend:
+    build:
+      context: ./MedAI_Frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+        NEXT_PUBLIC_USE_MOCK_API: "false"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+      NEXT_PUBLIC_USE_MOCK_API: "false"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
